@@ -1,0 +1,42 @@
+name: Agents sync
+
+# Regenerates .claude/agents/ from .opencode/agents/ and fails the PR if the
+# committed output doesn't match. See the write-up:
+# https://sypniewski.dev/en/blog/opencode-claude-code-agent-sync/
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agents-sync-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  agents-sync:
+    name: Agents sync (.claude/ matches .opencode/agents/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+
+      # Whitespace-safe: .gitattributes forces LF across .claude + .opencode, so byte-exact.
+      - name: Regenerate Claude agents
+        run: bun run .opencode/scripts/sync-agents.ts
+
+      - name: Fail if .claude is out of sync
+        run: |
+          if ! git diff --exit-code -- .claude; then
+            echo "::error::Generated .claude/ is out of sync with .opencode/agents/. Regenerate locally and commit: bun run .opencode/scripts/sync-agents.ts"
+            exit 1
+          fi
+          echo ".claude is in sync with .opencode/agents/"

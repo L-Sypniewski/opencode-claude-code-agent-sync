@@ -1,0 +1,7 @@
+# OpenCode→Claude Code agent sync: the generator (.opencode/scripts/sync-agents.ts)
+# always writes LF. Force LF across the source (.opencode/agents) and generated
+# (.claude) trees so the CI drift check (git diff --exit-code .claude) is
+# byte-exact with no cross-platform CRLF/LF false positives.
+.opencode/agents/** text eol=lf
+.opencode/scripts/sync-agents.ts text eol=lf
+.claude/** text eol=lf
