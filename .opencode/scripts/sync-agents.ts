@@ -141,8 +141,7 @@ function toScopeRules(v: any): ScopeRule[] {
 // match-wins then guarantees a global rule the agent didn't explicitly override
 // still sticks, while patterns the agent DID re-assert (e.g. code-review's
 // "git commit": deny) are excluded from the re-append so the explicit override
-// survives. Preserves the global block's internal ordering (aspire deny→
-// isolated-allow) in both copies.
+// survives. Preserves the global block's internal ordering in both copies.
 function mergeRules(globalRules: ScopeRule[], agentRules: ScopeRule[]): ScopeRule[] {
   if (!globalRules.length) return agentRules;
   if (!agentRules.length) return globalRules;
